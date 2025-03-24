@@ -1,18 +1,22 @@
-import { Controller, Post, Body } from '@nestjs/common';
-import { AuthService } from './auth/auth.service';
+import { Controller, Get, UseGuards, Request } from '@nestjs/common';
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { AppService } from './app.service'; // ✅ 추가!
 
-@Controller('auth')
-export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+@Controller()
+export class AppController {
+  constructor(private readonly appService: AppService) {} // ✅ 추가!
 
-  @Post('google')
-  async googleLogin(@Body('credential') credential: string) {
-    const user = await this.authService.verifyGoogleToken(credential);
-    
-    // 여기서 DB 저장 + JWT 발급 가능!
+  @Get()
+  getHello(): string {
+    return this.appService.getHello();  // ✅ 서비스에서 메시지 가져옴!
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('protected')
+  getProtected(@Request() req) {
     return {
-      message: '구글 로그인 성공!',
-      user,
+      message: '보호된 데이터입니다!',
+      user: req.user,
     };
   }
 }

@@ -7,12 +7,19 @@ export class AuthController {
 
   @Post('google')
   async googleLogin(@Body('credential') credential: string) {
-    const user = await this.authService.verifyGoogleToken(credential);
     
-    // 여기서 DB 저장 + JWT 발급 가능!
+    console.log('✅ 받은 credential:', credential);
+    const user = await this.authService.verifyGoogleToken(credential);
+
+    // JWT 토큰을 클라이언트에 응답으로 보내기
     return {
       message: '구글 로그인 성공!',
-      user,
+      user:{
+        email: user.email,
+        name: user.name,
+        picture: user.picture,
+      },
+      token: user.jwtToken,  // 클라이언트에게 JWT 토큰 전달
     };
   }
 }
