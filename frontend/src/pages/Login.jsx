@@ -1,21 +1,26 @@
+import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 
 function Login() {
+  const navigate = useNavigate(); // React Router의 navigate 훅 사용
+
   const handleLoginSuccess = async (credentialResponse) => {
     console.log("구글 로그인 성공!", credentialResponse);
+    console.log("credential 값:", credentialResponse.credential);
 
     try {
       const res = await axios.post('http://localhost:3000/auth/google', {
         credential: credentialResponse.credential
       });
 
-      console.log('백엔드 응답:', res.data);
+      console.log('✅ 백엔드에서 받은 user 정보:', res.data.user);
+      console.log('✅ 받은 토큰:', res.data.token);
 
-      // JWT 저장 및 라우팅 처리 (옵션)
+      // JWT 저장 및 라우팅 처리
       if (res.data.token) {
         localStorage.setItem('token', res.data.token);
-        // window.location.href = '/dashboard'; 또는 navigate('/dashboard')
+        navigate('/dashboard'); // 로그인 후 대시보드로 이동
       }
 
     } catch (error) {
